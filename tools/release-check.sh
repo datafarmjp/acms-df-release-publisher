@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="${1:-0.1.0}"
+VERSION="${1:-0.3.0}"
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PHP_BIN="${PHP_BIN:-$(command -v php || true)}"
 if [ -z "$PHP_BIN" ] && [ -d /Applications/MAMP/bin/php ]; then

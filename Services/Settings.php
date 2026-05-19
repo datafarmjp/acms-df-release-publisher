@@ -16,6 +16,7 @@ class Settings
         return [
             'products' => self::products(),
             'limit' => self::limit(),
+            'entry' => self::entrySettings(),
             'apiTokenConfigured' => self::apiToken() !== '',
         ];
     }
@@ -51,6 +52,10 @@ class Settings
                 'display_name' => self::text((string)($item['display_name'] ?? $item['displayName'] ?? $product), 80),
                 'json_url' => $jsonUrl,
                 'github_releases_url' => trim((string)($item['github_releases_url'] ?? $item['githubReleasesUrl'] ?? '')),
+                'entry_blog_id' => max(0, (int)($item['entry_blog_id'] ?? $item['entryBlogId'] ?? 0)),
+                'entry_category_id' => max(0, (int)($item['entry_category_id'] ?? $item['entryCategoryId'] ?? 0)),
+                'entry_status' => self::status((string)($item['entry_status'] ?? $item['entryStatus'] ?? '')),
+                'entry_user_id' => max(0, (int)($item['entry_user_id'] ?? $item['entryUserId'] ?? 0)),
             ];
         }
 
@@ -69,6 +74,36 @@ class Settings
     public static function apiToken(): string
     {
         return self::value('df_release_publisher_api_token');
+    }
+
+    public static function entrySettings(): array
+    {
+        return [
+            'blog_id' => self::entryBlogId(),
+            'category_id' => self::entryCategoryId(),
+            'status' => self::entryStatus(),
+            'user_id' => self::entryUserId(),
+        ];
+    }
+
+    public static function entryBlogId(): int
+    {
+        return max(0, (int)self::value('df_release_publisher_entry_blog_id'));
+    }
+
+    public static function entryCategoryId(): int
+    {
+        return max(0, (int)self::value('df_release_publisher_entry_category_id'));
+    }
+
+    public static function entryStatus(): string
+    {
+        return self::status(self::value('df_release_publisher_entry_status')) ?: 'draft';
+    }
+
+    public static function entryUserId(): int
+    {
+        return max(0, (int)self::value('df_release_publisher_entry_user_id'));
     }
 
     private static function value(string $key): string
@@ -132,5 +167,10 @@ class Settings
             return mb_substr($value, 0, $max);
         }
         return substr($value, 0, $max);
+    }
+
+    private static function status(string $value): string
+    {
+        return in_array($value, ['draft', 'open', 'close'], true) ? $value : '';
     }
 }

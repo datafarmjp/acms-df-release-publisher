@@ -20,13 +20,65 @@ class ReleaseFeed
         return array_slice($rows, 0, max(1, min(50, $limit)));
     }
 
-    private static function releasesForProduct(array $product): array
+    public static function preview(array $products, int $limit): array
     {
-        $payload = self::loadJson((string)$product['json_url']);
-        if (!is_array($payload)) {
-            return [];
+        if (!$products) {
+            return [
+                'amount' => 0,
+                'releases' => [],
+                'errors' => [[
+                    'product' => '',
+                    'json_url' => '',
+                    'message' => '保存済みの表示対象プロダクトがありません。設定JSONの形式と必須項目を確認してください。',
+                ]],
+            ];
         }
 
+        $rows = [];
+        $errors = [];
+        foreach ($products as $product) {
+            $result = self::releasesForProductWithDiagnostics($product);
+            foreach ($result['releases'] as $release) {
+                $rows[] = $release;
+            }
+            foreach ($result['errors'] as $error) {
+                $errors[] = $error;
+            }
+        }
+
+        usort($rows, function ($a, $b) {
+            return strcmp((string)($b['date'] ?? ''), (string)($a['date'] ?? ''));
+        });
+
+        $rows = array_slice($rows, 0, max(1, min(50, $limit)));
+        return [
+            'amount' => count($rows),
+            'releases' => $rows,
+            'errors' => $errors,
+        ];
+    }
+
+    private static function releasesForProduct(array $product): array
+    {
+        return self::releasesForProductWithDiagnostics($product)['releases'];
+    }
+
+    private static function releasesForProductWithDiagnostics(array $product): array
+    {
+        $jsonUrl = (string)($product['json_url'] ?? '');
+        $loaded = self::loadJsonWithDiagnostics($jsonUrl);
+        if (!is_array($loaded['payload'])) {
+            return [
+                'releases' => [],
+                'errors' => [[
+                    'product' => (string)($product['product'] ?? ''),
+                    'json_url' => trim($jsonUrl),
+                    'message' => $loaded['message'],
+                ]],
+            ];
+        }
+
+        $payload = $loaded['payload'];
         $items = isset($payload['releases']) && is_array($payload['releases']) ? $payload['releases'] : [$payload];
         $rows = [];
         foreach ($items as $item) {
@@ -38,30 +90,48 @@ class ReleaseFeed
                 $rows[] = $row;
             }
         }
-        return $rows;
+        if ($rows) {
+            return [
+                'releases' => $rows,
+                'errors' => [],
+            ];
+        }
+
+        return [
+            'releases' => [],
+            'errors' => [[
+                'product' => (string)($product['product'] ?? ''),
+                'json_url' => trim($jsonUrl),
+                'message' => 'JSONは取得できましたが、有効なリリース情報がありませんでした。version などの必須項目を確認してください。',
+            ]],
+        ];
     }
 
-    private static function loadJson(string $url): ?array
+    private static function loadJsonWithDiagnostics(string $url): array
     {
         $url = trim($url);
         if ($url === '') {
-            return null;
+            return [
+                'payload' => null,
+                'message' => 'JSON URLが空です。',
+            ];
         }
 
         $context = stream_context_create([
             'http' => [
                 'timeout' => 5,
                 'ignore_errors' => true,
-                'header' => "User-Agent: DF_ReleasePublisher/0.1\r\n",
+                'header' => "User-Agent: DF_ReleasePublisher/0.3\r\n",
             ],
             'https' => [
                 'timeout' => 5,
                 'ignore_errors' => true,
-                'header' => "User-Agent: DF_ReleasePublisher/0.1\r\n",
+                'header' => "User-Agent: DF_ReleasePublisher/0.3\r\n",
             ],
         ]);
 
         $body = false;
+        $source = $url;
         if (preg_match('#^https?://#i', $url)) {
             $body = @file_get_contents($url, false, $context);
         } else {
@@ -69,17 +139,31 @@ class ReleaseFeed
             if ($path !== '' && $path[0] === '/') {
                 $path = defined('SCRIPT_DIR') ? rtrim(SCRIPT_DIR, '/') . $path : $path;
             }
+            $source = $path;
             if (is_file($path)) {
                 $body = @file_get_contents($path);
             }
         }
 
         if (!is_string($body) || $body === '') {
-            return null;
+            return [
+                'payload' => null,
+                'message' => sprintf('JSONを取得できませんでした。URLまたは配置先を確認してください。(%s)', $source),
+            ];
         }
 
         $json = json_decode($body, true);
-        return is_array($json) ? $json : null;
+        if (!is_array($json)) {
+            return [
+                'payload' => null,
+                'message' => 'JSONを読み取れませんでした。JSON形式を確認してください。',
+            ];
+        }
+
+        return [
+            'payload' => $json,
+            'message' => '',
+        ];
     }
 
     private static function normalizeRelease(array $item, array $product): ?array

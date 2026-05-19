@@ -45,7 +45,11 @@
     "product": "DF_InputAssist",
     "display_name": "DF入力支援",
     "json_url": "/media/releases/DF_InputAssist/latest.json",
-    "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases"
+    "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases",
+    "entry_blog_id": 1,
+    "entry_category_id": 1,
+    "entry_status": "draft",
+    "entry_user_id": 1
   }
 ]'>{df_release_publisher_products}</textarea>
         <input type="hidden" name="config[]" value="df_release_publisher_products">
@@ -60,17 +64,64 @@
     </tr>
   </table>
 
-  <h2 class="acms-admin-admin-title2"><!--T-->将来の告知投稿設定<!--/T--></h2>
-  <p class="acms-admin-text-muted">v0.1では保存のみ行います。お知らせエントリー自動作成POSTを追加する時に使用します。</p>
+  <h2 class="acms-admin-admin-title2"><!--T-->JSON取得確認<!--/T--></h2>
+  <p class="acms-admin-text-muted">保存済み設定のJSON URLから取得確認します。入力内容を変更した場合は、先に保存してください。</p>
+  <div class="acms-admin-margin-bottom-medium">
+    <button type="button" class="acms-admin-btn-admin js-df-release-publisher-preview">JSON取得を確認</button>
+    <span class="js-df-release-publisher-preview-status acms-admin-text-muted" aria-live="polite"></span>
+  </div>
+  <div class="js-df-release-publisher-preview-result" hidden></div>
+
+  <h2 class="acms-admin-admin-title2"><!--T-->告知投稿設定<!--/T--></h2>
+  <p class="acms-admin-text-muted">保存済みのリリースJSONから、指定ブログ・カテゴリーへ告知エントリーを作成します。初期状態は下書きがおすすめです。</p>
   <table class="adminTable acms-admin-table-admin-edit">
+    <tr>
+      <th><!--T-->投稿先ブログID<!--/T--></th>
+      <td>
+        <input type="number" name="df_release_publisher_entry_blog_id" value="{df_release_publisher_entry_blog_id}" min="1" step="1" class="acms-admin-form-width-mini">
+        <input type="hidden" name="config[]" value="df_release_publisher_entry_blog_id">
+      </td>
+    </tr>
+    <tr>
+      <th><!--T-->投稿先カテゴリーID<!--/T--></th>
+      <td>
+        <input type="number" name="df_release_publisher_entry_category_id" value="{df_release_publisher_entry_category_id}" min="1" step="1" class="acms-admin-form-width-mini">
+        <input type="hidden" name="config[]" value="df_release_publisher_entry_category_id">
+      </td>
+    </tr>
+    <tr>
+      <th><!--T-->作成ステータス<!--/T--></th>
+      <td>
+        <select name="df_release_publisher_entry_status" class="js-df-release-publisher-entry-status">
+          <option value="draft"{df_release_publisher_entry_status:selected#draft}>下書き</option>
+          <option value="close"{df_release_publisher_entry_status:selected#close}>非公開</option>
+          <option value="open"{df_release_publisher_entry_status:selected#open}>公開</option>
+        </select>
+        <input type="hidden" name="config[]" value="df_release_publisher_entry_status">
+      </td>
+    </tr>
+    <tr>
+      <th><!--T-->投稿ユーザーID<!--/T--></th>
+      <td>
+        <input type="number" name="df_release_publisher_entry_user_id" value="{df_release_publisher_entry_user_id}" min="1" step="1" class="acms-admin-form-width-mini">
+        <input type="hidden" name="config[]" value="df_release_publisher_entry_user_id">
+        <p class="acms-admin-text-muted">外部POSTで告知エントリーを作成するときの投稿者です。未設定時は投稿先ブログまたは親ブログ階層のユーザーを使います。</p>
+      </td>
+    </tr>
     <tr>
       <th><!--T-->APIトークン<!--/T--></th>
       <td>
         <input type="password" name="df_release_publisher_api_token" value="{df_release_publisher_api_token}" class="acms-admin-form-width-large" autocomplete="off">
         <input type="hidden" name="config[]" value="df_release_publisher_api_token">
+        <p class="acms-admin-text-muted">release.sh から外部POSTするときに使います。</p>
       </td>
     </tr>
   </table>
+  <div class="acms-admin-margin-bottom-medium">
+    <button type="button" class="acms-admin-btn-admin acms-admin-btn-admin-primary js-df-release-publisher-entry-create">告知エントリーを作成</button>
+    <span class="js-df-release-publisher-entry-create-status acms-admin-text-muted" aria-live="polite"></span>
+  </div>
+  <div class="js-df-release-publisher-entry-create-result" hidden></div>
 
   <h2 class="acms-admin-admin-title2"><!--T-->テンプレート設置例<!--/T--></h2>
   <pre class="acms-admin-code">&lt;!-- BEGIN_MODULE DFReleasePublisher limit=&quot;10&quot; --&gt;
@@ -85,5 +136,272 @@
 &lt;!-- BEGIN notFound --&gt;&lt;p&gt;公開中の変更履歴はまだありません。&lt;/p&gt;&lt;!-- END notFound --&gt;
 &lt;!-- END_MODULE DFReleasePublisher --&gt;</pre>
 </form>
+
+<style>
+.df-release-publisher-preview {
+  margin: 12px 0 24px;
+}
+
+.df-release-publisher-preview__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.df-release-publisher-preview__item {
+  padding: 12px 0;
+  border-top: 1px solid #ddd;
+}
+
+.df-release-publisher-preview__item:first-child {
+  border-top: 0;
+}
+
+.df-release-publisher-preview__meta {
+  margin: 0 0 4px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.df-release-publisher-preview__title {
+  margin: 0 0 6px;
+  font-weight: bold;
+}
+
+.df-release-publisher-preview__changes {
+  margin: 6px 0 0 1.5em;
+}
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var button = document.querySelector('.js-df-release-publisher-preview');
+    var status = document.querySelector('.js-df-release-publisher-preview-status');
+    var result = document.querySelector('.js-df-release-publisher-preview-result');
+    var entryButton = document.querySelector('.js-df-release-publisher-entry-create');
+    var entryStatus = document.querySelector('.js-df-release-publisher-entry-create-status');
+    var entryResult = document.querySelector('.js-df-release-publisher-entry-create-result');
+    var entryStatusSelect = document.querySelector('.js-df-release-publisher-entry-status');
+    if (entryStatusSelect && !entryStatusSelect.value) {
+      entryStatusSelect.value = 'draft';
+    }
+    if (!window.fetch) {
+      return;
+    }
+
+    if (button && status && result) {
+      button.addEventListener('click', function() {
+      button.disabled = true;
+      status.className = 'js-df-release-publisher-preview-status acms-admin-text-muted';
+      status.textContent = 'JSONを確認しています。';
+      result.hidden = true;
+      result.innerHTML = '';
+
+      postPreview()
+        .then(function(json) {
+          if (!json || json.status !== 'success') {
+            throw new Error(json && json.message ? json.message : 'JSON取得確認に失敗しました。');
+          }
+          renderPreview(json);
+        })
+        .catch(function(error) {
+          status.className = 'js-df-release-publisher-preview-status acms-admin-text-danger';
+          status.textContent = error && error.message ? error.message : 'JSON取得確認に失敗しました。';
+        })
+        .finally(function() {
+          button.disabled = false;
+        });
+      });
+    }
+
+    if (entryButton && entryStatus && entryResult) {
+      entryButton.addEventListener('click', function() {
+        if (!window.confirm('保存済み設定から告知エントリーを作成します。よろしいですか？')) {
+          return;
+        }
+        entryButton.disabled = true;
+        entryStatus.className = 'js-df-release-publisher-entry-create-status acms-admin-text-muted';
+        entryStatus.textContent = '告知エントリーを作成しています。';
+        entryResult.hidden = true;
+        entryResult.innerHTML = '';
+
+        postAction('ACMS_POST_ReleasePublisherEntryCreate', '告知エントリーを作成')
+          .then(function(json) {
+            if (!json || json.status !== 'success') {
+              throw new Error(json && json.message ? json.message : '告知エントリーを作成できませんでした。');
+            }
+            renderEntryCreate(json);
+          })
+          .catch(function(error) {
+            entryStatus.className = 'js-df-release-publisher-entry-create-status acms-admin-text-danger';
+            entryStatus.textContent = error && error.message ? error.message : '告知エントリーを作成できませんでした。';
+          })
+          .finally(function() {
+            entryButton.disabled = false;
+          });
+      });
+    }
+
+    function postPreview() {
+      return postAction('ACMS_POST_ReleasePublisherPreview', 'JSON取得を確認');
+    }
+
+    function postAction(action, label) {
+      var formData = new FormData();
+      formData.append(action, label);
+      appendCsrfToken(formData);
+
+      return fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Csrf-Token': getCsrfToken(),
+        },
+      })
+        .then(function(response) {
+          if (!response.ok) {
+            throw new Error('JSON取得確認に失敗しました。');
+          }
+          return response.text();
+        })
+        .then(function(text) {
+          try {
+            return text ? JSON.parse(text) : {};
+          } catch (error) {
+            throw new Error(isHtmlResponse(text)
+              ? 'POSTが認識されずHTMLが返りました。拡張アプリを更新、または再有効化してください。'
+              : '通信結果を読み取れませんでした。');
+          }
+        });
+    }
+
+    function renderEntryCreate(json) {
+      var created = Array.isArray(json.created) ? json.created : [];
+      var existing = Array.isArray(json.existing) ? json.existing : [];
+      var errors = Array.isArray(json.errors) ? json.errors : [];
+      var html = '';
+      var message = created.length + '件作成、' + existing.length + '件既存です。';
+      entryStatus.className = 'js-df-release-publisher-entry-create-status ' + (errors.length ? 'acms-admin-text-danger' : 'acms-admin-text-success');
+      entryStatus.textContent = errors.length && !created.length && !existing.length ? '告知エントリーを作成できませんでした。' : message;
+
+      html += '<div class="df-release-publisher-preview">';
+      if (created.length) {
+        html += '<p><strong>作成したエントリー</strong></p><ul>';
+        created.forEach(function(item) {
+          html += '<li>eid:' + escapeHtml(item.eid) + ' ' + escapeHtml(item.title || '') + ' (' + escapeHtml(item.status || '') + ')</li>';
+        });
+        html += '</ul>';
+      }
+      if (existing.length) {
+        html += '<p><strong>既存のため作成しなかったエントリー</strong></p><ul>';
+        existing.forEach(function(item) {
+          html += '<li>eid:' + escapeHtml(item.eid) + ' ' + escapeHtml(item.title || '') + ' (' + escapeHtml(item.status || '') + ')</li>';
+        });
+        html += '</ul>';
+      }
+      if (errors.length) {
+        html += '<div class="acms-admin-alert acms-admin-alert-warning"><strong>確認メモ</strong><ul>';
+        errors.forEach(function(error) {
+          html += '<li>' + escapeHtml([error.product, error.message].filter(Boolean).join(': ')) + '</li>';
+        });
+        html += '</ul></div>';
+      }
+      html += '</div>';
+
+      entryResult.innerHTML = html;
+      entryResult.hidden = false;
+    }
+
+    function renderPreview(json) {
+      var releases = Array.isArray(json.releases) ? json.releases : [];
+      var errors = Array.isArray(json.errors) ? json.errors : [];
+      var html = '';
+      status.className = 'js-df-release-publisher-preview-status ' + (releases.length ? 'acms-admin-text-success' : 'acms-admin-text-danger');
+      status.textContent = releases.length ? (releases.length + '件のリリースを取得できました。') : '取得できたリリースはありません。';
+
+      html += '<div class="df-release-publisher-preview">';
+      if (releases.length) {
+        html += '<ul class="df-release-publisher-preview__list">';
+        releases.slice(0, 5).forEach(function(release) {
+          html += '<li class="df-release-publisher-preview__item">';
+          html += '<p class="df-release-publisher-preview__meta">' + escapeHtml([release.date, release.display_name, release.tag].filter(Boolean).join(' ')) + '</p>';
+          html += '<p class="df-release-publisher-preview__title">' + escapeHtml(release.title || '') + '</p>';
+          if (release.github_release_url) {
+            html += '<p><a href="' + escapeAttr(release.github_release_url) + '" target="_blank" rel="noopener">GitHub Release</a></p>';
+          }
+          if (Array.isArray(release.changes) && release.changes.length) {
+            html += '<ul class="df-release-publisher-preview__changes">';
+            release.changes.slice(0, 3).forEach(function(change) {
+              html += '<li>' + escapeHtml(change && change.text ? change.text : '') + '</li>';
+            });
+            html += '</ul>';
+          }
+          html += '</li>';
+        });
+        html += '</ul>';
+      }
+      if (errors.length) {
+        html += '<div class="acms-admin-alert acms-admin-alert-warning"><strong>確認メモ</strong><ul>';
+        errors.forEach(function(error) {
+          html += '<li>' + escapeHtml([error.product, error.message].filter(Boolean).join(': ')) + '</li>';
+        });
+        html += '</ul></div>';
+      }
+      html += '</div>';
+
+      result.innerHTML = html;
+      result.hidden = false;
+    }
+
+    function appendCsrfToken(formData) {
+      var token = getCsrfToken();
+      if (token) {
+        formData.append('formToken', token);
+        formData.append('csrf_token', token);
+      }
+    }
+
+    function getCsrfToken() {
+      var meta;
+      var input;
+      if (window.csrfToken) {
+        return window.csrfToken;
+      }
+      meta = document.querySelector('meta[name="csrf-token"], meta[name="csrf_token"]');
+      if (meta && meta.content) {
+        return meta.content;
+      }
+      input = document.querySelector('input[name="formToken"], input[name="csrf_token"], input[name="token"]');
+      return input && input.value ? input.value : '';
+    }
+
+    function isHtmlResponse(text) {
+      var value = String(text || '').trim().toLowerCase();
+      return value.indexOf('<!doctype html') === 0 || value.indexOf('<html') === 0;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, function(match) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;',
+        }[match];
+      });
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#096;');
+    }
+  });
+})();
+</script>
 <!-- END_MODULE Admin_Config -->
 <!-- END_IF -->

@@ -2,17 +2,20 @@
 
 DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履歴として表示するための拡張アプリです。
 
-## v0.1の範囲
+## できること
 
 - 複数プロダクトのリリースJSON URLを管理画面で設定できます。
 - `DFReleasePublisher` モジュールで変更履歴を表示できます。
-- お知らせエントリーの自動作成はまだ行いません。
+- 管理画面から保存済みリリースJSONを取得し、指定ブログ・カテゴリーへ告知エントリーを作成できます。
+- `product + version` のカスタムフィールドで重複作成を防ぎます。
+- `release.sh` から外部POSTを受け、告知エントリー作成を自動化できます。
 
 ## インストール
 
 1. `DF_ReleasePublisher` フォルダを `extension/plugins/` に配置します。
 2. a-blog cms の拡張アプリ管理から `DFリリース` をインストール・有効化します。
 3. 管理画面の `DFリリース設定` で、表示対象プロダクトのJSON URLを設定します。
+4. 告知エントリーを作成する場合は、投稿先ブログID、投稿先カテゴリーID、作成ステータス、投稿ユーザーID、APIトークンを設定します。
 
 管理画面は `themes/system/admin/app/df-release-publisher.html` へコピーせず、a-blog cms の `InjectTemplate` でプラグイン内テンプレートを差し込みます。パンくず名も `admin-topicpath` で差し込みます。
 
@@ -24,12 +27,43 @@ DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履�
     "product": "DF_InputAssist",
     "display_name": "DF入力支援",
     "json_url": "/media/releases/DF_InputAssist/latest.json",
-    "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases"
+    "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases",
+    "entry_blog_id": 1,
+    "entry_category_id": 1,
+    "entry_status": "draft",
+    "entry_user_id": 1
   }
 ]
 ```
 
 まずは `DF_InputAssist` だけを登録して、`/media/releases/DF_InputAssist/latest.json` が読めることを確認します。複数アプリを表示したい場合は、同じ形式で配列要素を追加します。
+プロダクトごとの `entry_blog_id`、`entry_category_id`、`entry_status`、`entry_user_id` は任意です。未指定の場合は、管理画面下部の共通告知投稿設定を使います。投稿ユーザーIDが未指定の場合は、投稿先ブログまたは親ブログ階層のユーザーを使います。
+
+## 告知エントリー作成
+
+管理画面で投稿先ブログID、投稿先カテゴリーID、作成ステータス、投稿ユーザーIDを保存してから、`告知エントリーを作成` を押します。このボタンは外部POST連携後もデバッグ用として利用できます。
+
+作成されるエントリーには、重複防止用に以下のカスタムフィールドを保存します。
+
+- `df_release_product`
+- `df_release_version`
+- `df_release_tag`
+- `df_release_github_release_url`
+- `df_release_download_url`
+
+同じブログ内に同じ `df_release_product` と `df_release_version` を持つエントリーがある場合、新規作成せず既存エントリーとして扱います。
+
+## 外部POST連携
+
+リリーススクリプトから告知エントリー作成を自動通知できます。
+
+```bash
+export DF_RELEASE_PUBLISH_ENABLED=1
+export DF_RELEASE_PUBLISH_ENDPOINT="https://example.com/bid/1/"
+export DF_RELEASE_PUBLISH_TOKEN="管理画面で保存したAPIトークン"
+```
+
+POST先では `ACMS_POST_ReleasePublisherWebhook`、`api_token`、`product`、`version` を受け取ります。POSTされた本文そのものは正本にせず、保存済み設定のJSON URLから再取得した `latest.json` の `product/version` が一致する場合だけ告知エントリーを作成します。
 
 ## 表示例
 
@@ -73,7 +107,7 @@ DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履�
 データファーム製 a-blog cms 拡張アプリの共通公開ルールは、`../_shared/DF_EXTENSION_APP_GUIDELINES.md` と `../_shared/DF_EXTENSION_APP_ADMIN_TEMPLATE_HOWTO.md` を参照してください。
 
 ```bash
-tools/release.sh 0.1.0
+tools/release.sh 0.3.0
 ```
 
 リリーススクリプトは配布ZIP、GitHub Release本文、リリースJSONを生成します。`DF_RELEASE_SYNC_ENABLED=1` の場合だけ、生成JSONをSFTPで指定先へ同期します。

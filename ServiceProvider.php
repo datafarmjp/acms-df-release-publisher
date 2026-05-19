@@ -7,7 +7,7 @@ use Acms\Services\Common\InjectTemplate;
 
 class ServiceProvider extends ACMS_App
 {
-    public const VERSION = '0.1.1';
+    public const VERSION = '0.3.0';
 
     private const GET_WRAPPER_MARKER = 'DF_ReleasePublisher managed GET wrapper';
     private const POST_WRAPPER_MARKER = 'DF_ReleasePublisher managed POST wrapper';
@@ -18,6 +18,9 @@ class ServiceProvider extends ACMS_App
 
     private static $postWrappers = [
         'ReleasePublisherSettings.php',
+        'ReleasePublisherPreview.php',
+        'ReleasePublisherEntryCreate.php',
+        'ReleasePublisherWebhook.php',
     ];
 
     public $version = self::VERSION;
