@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+<a id="v0-1-1"></a>
+## 0.1.1 - 2026-05-19
+
+- 管理画面とREADMEの設定例を、最初の実証対象である `DF_InputAssist` 単体に整理しました。
+- `/media/releases/DF_InputAssist/latest.json` を読む運用手順と、SFTP同期用の環境変数例をREADMEに追加しました。
+
 <a id="v0-1-0"></a>
 ## 0.1.0 - 2026-05-19
 

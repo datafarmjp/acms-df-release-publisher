@@ -25,15 +25,11 @@ DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履�
     "display_name": "DF入力支援",
     "json_url": "/media/releases/DF_InputAssist/latest.json",
     "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases"
-  },
-  {
-    "product": "DF_Like",
-    "display_name": "DFいいね",
-    "json_url": "/media/releases/DF_Like/latest.json",
-    "github_releases_url": "https://github.com/datafarmjp/acms-df-like/releases"
   }
 ]
 ```
+
+まずは `DF_InputAssist` だけを登録して、`/media/releases/DF_InputAssist/latest.json` が読めることを確認します。複数アプリを表示したい場合は、同じ形式で配列要素を追加します。
 
 ## 表示例
 
@@ -81,6 +77,27 @@ tools/release.sh 0.1.0
 ```
 
 リリーススクリプトは配布ZIP、GitHub Release本文、リリースJSONを生成します。`DF_RELEASE_SYNC_ENABLED=1` の場合だけ、生成JSONをSFTPで指定先へ同期します。
+
+### DF_InputAssistでのJSON同期実証
+
+標準の配置先は次の形です。
+
+```text
+media/releases/DF_InputAssist/latest.json
+media/releases/DF_InputAssist/vX.Y.Z.json
+```
+
+SFTP同期を有効にするときは、接続情報を環境変数で渡します。値はリポジトリに保存しません。
+
+```bash
+export DF_RELEASE_SYNC_ENABLED=1
+export DF_RELEASE_SYNC_HOST="example.com"
+export DF_RELEASE_SYNC_USER="user"
+export DF_RELEASE_SYNC_REMOTE_PATH="/path/to/public_html/media/releases"
+export DF_RELEASE_SYNC_PORT=22
+```
+
+`DF_RELEASE_SYNC_REMOTE_PATH` は `media/releases` を指すディレクトリにします。`release.sh` はこの下に `{PRODUCT}/latest.json` と `{PRODUCT}/vX.Y.Z.json` を配置します。
 
 ## ライセンス
 
