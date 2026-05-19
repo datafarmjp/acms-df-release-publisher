@@ -1,0 +1,19 @@
+# Files included in release ZIP.
+.gitignore
+Bootstrap.php
+CHANGELOG.md
+GET/DFReleasePublisher.php
+LICENSE
+POST/ReleasePublisherSettings.php
+README.md
+RELEASE_MANIFEST.txt
+ServiceProvider.php
+Services/ReleaseFeed.php
+Services/Settings.php
+template/admin/app/df-release-publisher.html
+template/admin/topicpath/df-release-publisher.html
+template/get/DFReleasePublisher.php
+template/post/ReleasePublisherSettings.php
+tools/release-check.sh
+tools/release-json.php
+tools/release.sh

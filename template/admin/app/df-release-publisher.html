@@ -1,0 +1,95 @@
+<!-- DF_ReleasePublisher managed admin app template -->
+<!-- BEGIN_IF [%{ADMIN}/eq/app_df-release-publisher] -->
+<header>
+  <div>
+    @include("/admin/topicpath.html")
+  </div>
+  <div>
+    <h1 class="acms-admin-admin-title"><!--T-->DFリリース設定<!--/T--></h1>
+  </div>
+</header>
+
+<!-- BEGIN_MODULE Admin_Config -->
+<!-- BEGIN_IF [{notice_mess}/nem/] -->
+<div role="alert" class="acms-admin-alert acms-admin-alert-info acms-admin-alert-icon">
+  <span class="acms-admin-icon acms-admin-icon-news acms-admin-alert-icon-before" aria-hidden="true"></span>
+  <button type="button" class="js-acms-alert-close acms-admin-alert-icon-after">×</button>
+  <!--T-->DFリリース設定を保存しました<!--/T-->
+</div>
+<!-- END_IF -->
+
+<!-- BEGIN msg#error -->
+<div role="alert" class="acms-admin-alert acms-admin-alert-danger acms-admin-alert-icon">
+  <span class="acms-admin-icon acms-admin-icon-attention acms-admin-alert-icon-before" aria-hidden="true"></span>
+  <button type="button" class="js-acms-alert-close acms-admin-alert-icon-after" aria-label="アラートを閉じる">×</button>
+  <!--T-->DFリリース設定を保存できませんでした。<!--/T-->
+</div>
+<!-- END msg#error -->
+
+<form action="" method="post" class="acms-admin-form">
+  <div class="js-acms_fix_marker acms_fix_bg">
+    <div class="acms_fix_bg_index">
+      <input type="submit" name="ACMS_POST_Config" value="<!--T-->保存<!--/T-->" class="acms-admin-btn-admin acms-admin-btn-admin-primary acms-admin-btn-admin-save js-saving-splash">
+      @include("/admin/config/action.html")
+    </div>
+  </div>
+
+  <h2 class="acms-admin-admin-title2"><!--T-->変更履歴JSON<!--/T--></h2>
+  <p class="acms-admin-text-muted">表示したいDF製拡張アプリのJSON URLを配列で指定します。各JSONはリリーススクリプトが生成する共通形式を想定しています。</p>
+  <table class="adminTable acms-admin-table-admin-edit">
+    <tr>
+      <th><!--T-->表示対象プロダクト<!--/T--></th>
+      <td>
+        <textarea name="df_release_publisher_products" rows="12" class="acms-admin-form-width-full" placeholder='[
+  {
+    "product": "DF_InputAssist",
+    "display_name": "DF入力支援",
+    "json_url": "/media/releases/DF_InputAssist/latest.json",
+    "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases"
+  },
+  {
+    "product": "DF_Like",
+    "display_name": "DFいいね",
+    "json_url": "/media/releases/DF_Like/latest.json",
+    "github_releases_url": "https://github.com/datafarmjp/acms-df-like/releases"
+  }
+]'>{df_release_publisher_products}</textarea>
+        <input type="hidden" name="config[]" value="df_release_publisher_products">
+      </td>
+    </tr>
+    <tr>
+      <th><!--T-->表示件数<!--/T--></th>
+      <td>
+        <input type="number" name="df_release_publisher_limit" value="{df_release_publisher_limit}" min="1" max="50" step="1" class="acms-admin-form-width-mini" placeholder="10">
+        <input type="hidden" name="config[]" value="df_release_publisher_limit">
+      </td>
+    </tr>
+  </table>
+
+  <h2 class="acms-admin-admin-title2"><!--T-->将来の告知投稿設定<!--/T--></h2>
+  <p class="acms-admin-text-muted">v0.1では保存のみ行います。お知らせエントリー自動作成POSTを追加する時に使用します。</p>
+  <table class="adminTable acms-admin-table-admin-edit">
+    <tr>
+      <th><!--T-->APIトークン<!--/T--></th>
+      <td>
+        <input type="password" name="df_release_publisher_api_token" value="{df_release_publisher_api_token}" class="acms-admin-form-width-large" autocomplete="off">
+        <input type="hidden" name="config[]" value="df_release_publisher_api_token">
+      </td>
+    </tr>
+  </table>
+
+  <h2 class="acms-admin-admin-title2"><!--T-->テンプレート設置例<!--/T--></h2>
+  <pre class="acms-admin-code">&lt;!-- BEGIN_MODULE DFReleasePublisher limit=&quot;10&quot; --&gt;
+&lt;!-- BEGIN release:loop --&gt;
+&lt;article&gt;
+  &lt;p&gt;{date} {display_name} {tag}&lt;/p&gt;
+  &lt;h2&gt;{title}&lt;/h2&gt;
+  &lt;ul&gt;&lt;!-- BEGIN changes:loop --&gt;&lt;li&gt;{text}&lt;/li&gt;&lt;!-- END changes:loop --&gt;&lt;/ul&gt;
+  &lt;p&gt;&lt;a href=&quot;{github_release_url}&quot;&gt;GitHub Release&lt;/a&gt; &lt;a href=&quot;{changelog_url}&quot;&gt;CHANGELOG&lt;/a&gt;&lt;/p&gt;
+&lt;/article&gt;
+&lt;!-- END release:loop --&gt;
+&lt;!-- BEGIN notFound --&gt;&lt;p&gt;公開中の変更履歴はまだありません。&lt;/p&gt;&lt;!-- END notFound --&gt;
+&lt;!-- END_MODULE DFReleasePublisher --&gt;</pre>
+</form>
+<!-- END_MODULE Admin_Config -->
+<!-- END_IF -->
