@@ -11,4 +11,5 @@
 - 管理画面パンくず用テンプレートを `admin-topicpath` に差し込み、パンくず上でも `DFリリース` と表示するようにしました。
 - GET/POST互換ラッパーを `extension/acms/GET/` と `extension/acms/POST/` へ同期するようにしました。
 - DF製拡張アプリ共通のリリースJSON形式に対応し、`github_release_url`、`changelog_url`、`download_url`、`changes` を表示に利用できるようにしました。
+- 初回リリースで前回タグが存在しない場合も `tools/release.sh` が止まらないようにしました。
 - MITライセンスを追加しました。

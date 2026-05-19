@@ -103,7 +103,8 @@ git fetch --tags origin >/dev/null 2>&1 || true
 PREVIOUS_TAG="$(
   git tag --sort=-v:refname \
     | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-    | awk -v current="$TAG" 'current == "" || $0 != current { print; exit }'
+    | awk -v current="$TAG" 'current == "" || $0 != current { print; exit }' \
+    || true
 )"
 PREVIOUS_VERSION="${PREVIOUS_TAG#v}"
 
