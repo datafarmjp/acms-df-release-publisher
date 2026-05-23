@@ -35,23 +35,31 @@
   </div>
 
   <h2 class="acms-admin-admin-title2"><!--T-->変更履歴JSON<!--/T--></h2>
-  <p class="acms-admin-text-muted">表示したいDF製拡張アプリのJSON URLを配列で指定します。各JSONはリリーススクリプトが生成する共通形式を想定しています。</p>
+  <p class="acms-admin-text-muted">表示したいDF製拡張アプリのJSON URLと、製品ページ生成用の補助情報をJSONで指定します。各リリースJSONはリリーススクリプトが生成する共通形式を想定しています。</p>
   <table class="adminTable acms-admin-table-admin-edit">
     <tr>
       <th><!--T-->表示対象プロダクト<!--/T--></th>
       <td>
-        <textarea name="df_release_publisher_products" rows="12" class="acms-admin-form-width-full" placeholder='[
-  {
-    "product": "DF_InputAssist",
-    "display_name": "DF入力支援",
-    "json_url": "/media/releases/DF_InputAssist/latest.json",
-    "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases",
-    "entry_blog_id": 1,
-    "entry_category_id": 1,
-    "entry_status": "draft",
-    "entry_user_id": 1
-  }
-]'>{df_release_publisher_products}</textarea>
+        <textarea name="df_release_publisher_products" rows="12" class="acms-admin-form-width-full" placeholder='{
+  "df_release_docs": {
+    "theme_base_path": "_df-product-docs",
+    "top_include_name": "_top_include.html",
+    "changelog_include_name": "changelog_include.html"
+  },
+  "df_release_products": [
+    {
+      "product": "DF_InputAssist",
+      "display_name": "DF入力支援",
+      "json_url": "/media/releases/DF_InputAssist/latest.json",
+      "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases",
+      "entry_blog_id": 1,
+      "entry_category_id": 1,
+      "entry_status": "draft",
+      "entry_user_id": 1,
+      "category_code": "df-input-assist"
+    }
+  ]
+}'>{df_release_publisher_products}</textarea>
         <input type="hidden" name="config[]" value="df_release_publisher_products">
       </td>
     </tr>

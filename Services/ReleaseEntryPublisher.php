@@ -346,6 +346,7 @@ class ReleaseEntryPublisher
     {
         $html = '<p>' . self::h((string)($release['display_name'] ?? $release['product'] ?? 'DF拡張アプリ')) . ' ' . self::h((string)($release['tag'] ?? '')) . ' を公開しました。</p>';
         if (!empty($release['changes']) && is_array($release['changes'])) {
+            $html .= '<h3>変更内容</h3>';
             $html .= '<ul>';
             foreach ($release['changes'] as $change) {
                 $text = is_array($change) ? (string)($change['text'] ?? '') : (string)$change;

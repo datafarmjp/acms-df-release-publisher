@@ -22,22 +22,31 @@ DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履�
 ## 設定例
 
 ```json
-[
-  {
-    "product": "DF_InputAssist",
-    "display_name": "DF入力支援",
-    "json_url": "/media/releases/DF_InputAssist/latest.json",
-    "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases",
-    "entry_blog_id": 1,
-    "entry_category_id": 1,
-    "entry_status": "draft",
-    "entry_user_id": 1
-  }
-]
+{
+  "df_release_docs": {
+    "theme_base_path": "_df-product-docs",
+    "top_include_name": "_top_include.html",
+    "changelog_include_name": "changelog_include.html"
+  },
+  "df_release_products": [
+    {
+      "product": "DF_InputAssist",
+      "display_name": "DF入力支援",
+      "json_url": "/media/releases/DF_InputAssist/latest.json",
+      "github_releases_url": "https://github.com/datafarmjp/acms-df-input-assist/releases",
+      "entry_blog_id": 1,
+      "entry_category_id": 1,
+      "entry_status": "draft",
+      "entry_user_id": 1,
+      "category_code": "df-input-assist"
+    }
+  ]
+}
 ```
 
-まずは `DF_InputAssist` だけを登録して、`/media/releases/DF_InputAssist/latest.json` が読めることを確認します。複数アプリを表示したい場合は、同じ形式で配列要素を追加します。
+まずは `DF_InputAssist` だけを登録して、`/media/releases/DF_InputAssist/latest.json` が読めることを確認します。複数アプリを表示したい場合は、`df_release_products` の配列要素を追加します。
 プロダクトごとの `entry_blog_id`、`entry_category_id`、`entry_status`、`entry_user_id` は任意です。未指定の場合は、管理画面下部の共通告知投稿設定を使います。投稿ユーザーIDが未指定の場合は、投稿先ブログまたは親ブログ階層のユーザーを使います。
+`df_release_docs` は、READMEやCHANGELOGから生成するHTML断片の出力先ルールとして利用するための補助設定です。
 
 ## 告知エントリー作成
 
@@ -107,7 +116,7 @@ POST先では `ACMS_POST_ReleasePublisherWebhook`、`api_token`、`product`、`v
 データファーム製 a-blog cms 拡張アプリの共通公開ルールは、`../_shared/DF_EXTENSION_APP_GUIDELINES.md` と `../_shared/DF_EXTENSION_APP_ADMIN_TEMPLATE_HOWTO.md` を参照してください。
 
 ```bash
-tools/release.sh 0.3.0
+tools/release.sh 0.3.1
 ```
 
 リリーススクリプトは配布ZIP、GitHub Release本文、リリースJSONを生成します。`DF_RELEASE_SYNC_ENABLED=1` の場合だけ、生成JSONをSFTPで指定先へ同期します。

@@ -15,6 +15,7 @@ class Settings
     {
         return [
             'products' => self::products(),
+            'docs' => self::docs(),
             'limit' => self::limit(),
             'entry' => self::entrySettings(),
             'apiTokenConfigured' => self::apiToken() !== '',
@@ -28,15 +29,19 @@ class Settings
             return [];
         }
 
-        $json = json_decode(rawurldecode($raw), true);
-        if (!is_array($json)) {
-            $json = json_decode($raw, true);
-        }
+        $json = self::configJson($raw);
         if (!is_array($json)) {
             return [];
         }
 
-        $items = isset($json['products']) && is_array($json['products']) ? $json['products'] : $json;
+        if (isset($json['df_release_products']) && is_array($json['df_release_products'])) {
+            $items = $json['df_release_products'];
+        } elseif (isset($json['products']) && is_array($json['products'])) {
+            $items = $json['products'];
+        } else {
+            $items = $json;
+        }
+
         $products = [];
         foreach ($items as $item) {
             if (!is_array($item)) {
@@ -56,10 +61,26 @@ class Settings
                 'entry_category_id' => max(0, (int)($item['entry_category_id'] ?? $item['entryCategoryId'] ?? 0)),
                 'entry_status' => self::status((string)($item['entry_status'] ?? $item['entryStatus'] ?? '')),
                 'entry_user_id' => max(0, (int)($item['entry_user_id'] ?? $item['entryUserId'] ?? 0)),
+                'category_code' => self::pathPart((string)($item['category_code'] ?? $item['categoryCode'] ?? '')),
             ];
         }
 
         return array_values($products);
+    }
+
+    public static function docs(): array
+    {
+        $raw = self::value('df_release_publisher_products');
+        $json = self::configJson($raw);
+        $docs = is_array($json) && isset($json['df_release_docs']) && is_array($json['df_release_docs'])
+            ? $json['df_release_docs']
+            : [];
+
+        return [
+            'theme_base_path' => self::relativePath((string)($docs['theme_base_path'] ?? '_df-product-docs')),
+            'top_include_name' => self::pathPart((string)($docs['top_include_name'] ?? '_top_include.html')),
+            'changelog_include_name' => self::pathPart((string)($docs['changelog_include_name'] ?? 'changelog_include.html')),
+        ];
     }
 
     public static function limit(): int
@@ -136,6 +157,19 @@ class Settings
         return self::$config;
     }
 
+    private static function configJson(string $raw): ?array
+    {
+        if ($raw === '') {
+            return null;
+        }
+
+        $json = json_decode(rawurldecode($raw), true);
+        if (!is_array($json)) {
+            $json = json_decode($raw, true);
+        }
+        return is_array($json) ? $json : null;
+    }
+
     private static function ancestorBlogIds(int $bid): array
     {
         $SQL = \SQL::newSelect('blog');
@@ -158,6 +192,21 @@ class Settings
     {
         $value = trim($value);
         return preg_match('/^[A-Za-z0-9_.-]{1,80}$/', $value) ? $value : '';
+    }
+
+    private static function pathPart(string $value): string
+    {
+        $value = trim($value);
+        return preg_match('/^[A-Za-z0-9_.-]{1,120}$/', $value) ? $value : '';
+    }
+
+    private static function relativePath(string $value): string
+    {
+        $value = trim($value, " \t\n\r\0\x0B/");
+        $parts = array_filter(explode('/', $value), static function ($part) {
+            return $part !== '' && $part !== '.' && $part !== '..' && preg_match('/^[A-Za-z0-9_.-]+$/', $part);
+        });
+        return implode('/', $parts);
     }
 
     private static function text(string $value, int $max): string
