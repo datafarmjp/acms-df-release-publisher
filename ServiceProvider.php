@@ -7,7 +7,7 @@ use Acms\Services\Common\InjectTemplate;
 
 class ServiceProvider extends ACMS_App
 {
-    public const VERSION = '0.3.1';
+    public const VERSION = '0.3.2';
 
     private const GET_WRAPPER_MARKER = 'DF_ReleasePublisher managed GET wrapper';
     private const POST_WRAPPER_MARKER = 'DF_ReleasePublisher managed POST wrapper';

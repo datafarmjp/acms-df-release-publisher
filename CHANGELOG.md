@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+<a id="v0-3-2"></a>
+## 0.3.2 - 2026-05-23
+
 - 製品設定JSONを使い、各DF製拡張アプリの `README.md` と `CHANGELOG.md` からテーマ用HTML断片を生成・SFTP同期できるツールを追加しました。
 
 <a id="v0-3-1"></a>
