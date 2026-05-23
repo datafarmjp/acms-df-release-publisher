@@ -48,6 +48,26 @@ DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履�
 プロダクトごとの `entry_blog_id`、`entry_category_id`、`entry_status`、`entry_user_id` は任意です。未指定の場合は、管理画面下部の共通告知投稿設定を使います。投稿ユーザーIDが未指定の場合は、投稿先ブログまたは親ブログ階層のユーザーを使います。
 `df_release_docs` は、READMEやCHANGELOGから生成するHTML断片の出力先ルールとして利用するための補助設定です。
 
+## 製品ページ用HTML断片の生成
+
+管理画面に保存する設定JSONと同じ形式のJSONファイルを指定して、各製品の `README.md` と `CHANGELOG.md` からHTML断片を生成できます。
+
+```bash
+tools/sync-product-docs.sh /path/to/df-release-products.json
+```
+
+生成先はローカルでは `/private/tmp/df-product-docs/{theme_base_path}/` です。`DF_PRODUCT_DOCS_SYNC_ENABLED=1` を指定した場合だけ、テーマディレクトリへSFTP同期します。
+
+```bash
+export DF_PRODUCT_DOCS_SYNC_ENABLED=1
+export DF_PRODUCT_DOCS_SYNC_HOST="xserver-datafarm"
+export DF_PRODUCT_DOCS_SYNC_USER="xs067579"
+export DF_PRODUCT_DOCS_SYNC_PORT="10022"
+export DF_PRODUCT_DOCS_THEME_REMOTE_PATH="/home/example/public_html/info.example.jp/themes/datafarm@member"
+```
+
+`theme_base_path` はテーマディレクトリからの相対パスです。たとえば `_df-product-docs` の場合、DFいいねの生成先は `_df-product-docs/df-like/_top_include.html` と `_df-product-docs/df-like/changelog_include.html` になります。
+
 ## 告知エントリー作成
 
 管理画面で投稿先ブログID、投稿先カテゴリーID、作成ステータス、投稿ユーザーIDを保存してから、`告知エントリーを作成` を押します。このボタンは外部POST連携後もデバッグ用として利用できます。

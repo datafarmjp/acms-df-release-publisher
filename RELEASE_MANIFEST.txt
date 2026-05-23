@@ -22,5 +22,7 @@ template/post/ReleasePublisherPreview.php
 template/post/ReleasePublisherEntryCreate.php
 template/post/ReleasePublisherWebhook.php
 tools/release-check.sh
+tools/generate-product-docs.php
 tools/release-json.php
 tools/release.sh
+tools/sync-product-docs.sh
