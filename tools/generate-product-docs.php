@@ -47,15 +47,14 @@ foreach ($products as $product) {
         continue;
     }
 
-    $productDir = rtrim($pluginsDir, '/') . '/' . $productName;
+    $sourcePath = trim((string)($product['source_path'] ?? ''));
+    $productDir = $sourcePath !== ''
+        ? rtrim($sourcePath, '/')
+        : rtrim($pluginsDir, '/') . '/' . $productName;
     $readmePath = $productDir . '/README.md';
     $changelogPath = $productDir . '/CHANGELOG.md';
     if (!is_file($readmePath)) {
         fwrite(STDERR, "README.md was not found: {$readmePath}\n");
-        continue;
-    }
-    if (!is_file($changelogPath)) {
-        fwrite(STDERR, "CHANGELOG.md was not found: {$changelogPath}\n");
         continue;
     }
 
@@ -74,7 +73,9 @@ foreach ($products as $product) {
     );
     writeHtml(
         $targetDir . '/' . $changelogIncludeName,
-        mdToHtml(stripFirstH1((string)file_get_contents($changelogPath))),
+        is_file($changelogPath)
+            ? mdToHtml(stripFirstH1((string)file_get_contents($changelogPath)))
+            : '<p>変更履歴はまだありません。</p>' . "\n",
         $displayName,
         'CHANGELOG.md'
     );

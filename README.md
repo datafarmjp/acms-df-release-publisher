@@ -46,11 +46,11 @@ DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履�
 
 まずは `DF_InputAssist` だけを登録して、`/media/releases/DF_InputAssist/latest.json` が読めることを確認します。複数アプリを表示したい場合は、`df_release_products` の配列要素を追加します。
 プロダクトごとの `entry_blog_id`、`entry_category_id`、`entry_status`、`entry_user_id` は任意です。未指定の場合は、管理画面下部の共通告知投稿設定を使います。投稿ユーザーIDが未指定の場合は、投稿先ブログまたは親ブログ階層のユーザーを使います。
-`df_release_docs` は、READMEやCHANGELOGから生成するHTML断片の出力先ルールとして利用するための補助設定です。
+`df_release_docs` は、READMEやCHANGELOGから生成するHTML断片の出力先ルールとして利用するための補助設定です。HTML断片生成時に、製品のソースディレクトリが `extension/plugins/{product}` 以外にある場合は、プロダクト設定へ `source_path` を追加できます。
 
 ## 製品ページ用HTML断片の生成
 
-管理画面に保存する設定JSONと同じ形式のJSONファイルを指定して、各製品の `README.md` と `CHANGELOG.md` からHTML断片を生成できます。
+管理画面に保存する設定JSONと同じ形式のJSONファイルを指定して、各製品の `README.md` と `CHANGELOG.md` からHTML断片を生成できます。`CHANGELOG.md` がない製品は、変更履歴なしの断片を生成します。
 
 ```bash
 tools/sync-product-docs.sh /path/to/df-release-products.json
