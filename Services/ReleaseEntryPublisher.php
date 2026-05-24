@@ -61,7 +61,7 @@ class ReleaseEntryPublisher
                 ]);
                 continue;
             }
-            $created[] = self::createEntry($release, $blogId, $categoryId, $status, $userId);
+            $created[] = self::createEntry($release, $blogId, $categoryId, $status, $userId, (array)($target['tags'] ?? []));
         }
 
         return [
@@ -88,6 +88,7 @@ class ReleaseEntryPublisher
             'category_id' => (int)($product['entry_category_id'] ?? 0) ?: (int)($settings['category_id'] ?? 0),
             'status' => (string)($product['entry_status'] ?? '') ?: (string)($settings['status'] ?? 'draft'),
             'user_id' => (int)($product['entry_user_id'] ?? 0) ?: (int)($settings['user_id'] ?? 0),
+            'tags' => is_array($product['entry_tags'] ?? null) ? $product['entry_tags'] : [],
         ];
     }
 
@@ -232,7 +233,7 @@ class ReleaseEntryPublisher
         return array_values(array_filter(array_map('intval', is_array($rows) ? $rows : [])));
     }
 
-    private static function createEntry(array $release, int $blogId, int $categoryId, string $status, int $userId): array
+    private static function createEntry(array $release, int $blogId, int $categoryId, string $status, int $userId, array $tags = []): array
     {
         $eid = (int)\DB::query(\SQL::nextval('entry_id', dsn()), 'seq');
         $date = self::releaseDate((string)($release['date'] ?? ''));
@@ -274,6 +275,7 @@ class ReleaseEntryPublisher
         }
         \DB::query($sql->get(dsn()), 'exec');
         self::insertBodyUnit($eid, $blogId, self::bodyHtml($release));
+        self::saveTags($eid, $blogId, $tags);
         self::saveReleaseFields($eid, $blogId, $release);
         Common::saveFulltext('eid', $eid, self::fulltext($release, $title), $blogId);
         if (class_exists('\ACMS_RAM')) {
@@ -323,6 +325,42 @@ class ReleaseEntryPublisher
             $field->setMeta($key, 'search', true);
         }
         Common::saveField('eid', $entryId, $field, null, null, $blogId);
+    }
+
+    private static function saveTags(int $entryId, int $blogId, array $tags): void
+    {
+        $tags = self::normalizeTags($tags);
+        if (!$tags) {
+            return;
+        }
+
+        $sql = \SQL::newBulkInsert('tag');
+        foreach ($tags as $sort => $tag) {
+            if (function_exists('isReserved') && isReserved($tag)) {
+                continue;
+            }
+            $sql->addInsert([
+                'tag_name' => $tag,
+                'tag_sort' => $sort + 1,
+                'tag_entry_id' => $entryId,
+                'tag_blog_id' => $blogId,
+            ]);
+        }
+        if ($sql->hasData()) {
+            \DB::query($sql->get(dsn()), 'exec');
+        }
+    }
+
+    private static function normalizeTags(array $tags): array
+    {
+        $normalized = [];
+        foreach ($tags as $tag) {
+            $tag = trim(strip_tags((string)$tag));
+            if ($tag !== '' && !in_array($tag, $normalized, true)) {
+                $normalized[] = $tag;
+            }
+        }
+        return $normalized;
     }
 
     private static function entryTitle(array $release): string

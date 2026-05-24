@@ -61,6 +61,7 @@ class Settings
                 'entry_category_id' => max(0, (int)($item['entry_category_id'] ?? $item['entryCategoryId'] ?? 0)),
                 'entry_status' => self::status((string)($item['entry_status'] ?? $item['entryStatus'] ?? '')),
                 'entry_user_id' => max(0, (int)($item['entry_user_id'] ?? $item['entryUserId'] ?? 0)),
+                'entry_tags' => self::tags($item['entry_tags'] ?? $item['entryTags'] ?? []),
                 'category_code' => self::pathPart((string)($item['category_code'] ?? $item['categoryCode'] ?? '')),
             ];
         }
@@ -207,6 +208,19 @@ class Settings
             return $part !== '' && $part !== '.' && $part !== '..' && preg_match('/^[A-Za-z0-9_.-]+$/', $part);
         });
         return implode('/', $parts);
+    }
+
+    private static function tags($value): array
+    {
+        $items = is_array($value) ? $value : explode(',', (string)$value);
+        $tags = [];
+        foreach ($items as $item) {
+            $tag = self::text((string)$item, 50);
+            if ($tag !== '' && !in_array($tag, $tags, true)) {
+                $tags[] = $tag;
+            }
+        }
+        return $tags;
     }
 
     private static function text(string $value, int $max): string
