@@ -137,7 +137,7 @@ POST先では `ACMS_POST_ReleasePublisherWebhook`、`api_token`、`product`、`v
 データファーム製 a-blog cms 拡張アプリの共通公開ルールは、`../_shared/DF_EXTENSION_APP_GUIDELINES.md` と `../_shared/DF_EXTENSION_APP_ADMIN_TEMPLATE_HOWTO.md` を参照してください。
 
 ```bash
-tools/release.sh 0.3.2
+tools/release.sh 0.3.3
 ```
 
 リリーススクリプトは配布ZIP、GitHub Release本文、リリースJSONを生成します。`DF_RELEASE_SYNC_ENABLED=1` の場合だけ、生成JSONをSFTPで指定先へ同期します。
