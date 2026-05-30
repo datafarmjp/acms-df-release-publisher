@@ -47,11 +47,20 @@ DF製 a-blog cms 拡張アプリのリリースJSONを読み込み、変更履�
 
 まずは `DF_InputAssist` だけを登録して、`/media/releases/DF_InputAssist/latest.json` が読めることを確認します。複数アプリを表示したい場合は、`df_release_products` の配列要素を追加します。
 プロダクトごとの `entry_blog_id`、`entry_category_id`、`entry_status`、`entry_user_id`、`entry_tags` は任意です。未指定の場合は、管理画面下部の共通告知投稿設定を使います。投稿ユーザーIDが未指定の場合は、投稿先ブログまたは親ブログ階層のユーザーを使います。
-`df_release_docs` は、READMEやCHANGELOGから生成するHTML断片の出力先ルールとして利用するための補助設定です。HTML断片生成時に、製品のソースディレクトリが `extension/plugins/{product}` 以外にある場合は、プロダクト設定へ `source_path` を追加できます。
+`df_release_docs` は、製品ページ本文や変更履歴から生成するHTML断片の出力先ルールとして利用するための補助設定です。HTML断片生成時に、製品のソースディレクトリが `extension/plugins/{product}` 以外にある場合は、プロダクト設定へ `source_path` を追加できます。
 
 ## 製品ページ用HTML断片の生成
 
-管理画面に保存する設定JSONと同じ形式のJSONファイルを指定して、各製品の `README.md` と `CHANGELOG.md` からHTML断片を生成できます。`CHANGELOG.md` がない製品は、変更履歴なしの断片を生成します。
+管理画面に保存する設定JSONと同じ形式のJSONファイルを指定して、各製品の `docs/public-page.md` と `CHANGELOG.md` からHTML断片を生成できます。
+
+- `README.md`: 開発・導入・仕様説明
+- `docs/public-page.md`: 製品トップ本文
+- `CHANGELOG.md`: 変更履歴
+- `docs/images/*`: 将来のスクリーンショット置き場
+
+`_top_include.html` は `docs/public-page.md` から生成します。`README.md` への自動フォールバックはしません。`docs/public-page.md` がない製品は明示的なエラーになり、製品トップ用HTML断片は生成されません。
+
+`changelog_include.html` は `CHANGELOG.md` から生成します。`CHANGELOG.md` がない製品は、変更履歴なしの断片を生成します。
 
 ```bash
 tools/sync-product-docs.sh /path/to/df-release-products.json

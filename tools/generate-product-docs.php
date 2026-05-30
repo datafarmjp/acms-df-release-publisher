@@ -36,6 +36,7 @@ if (!$products) {
 }
 
 $generated = [];
+$hasErrors = false;
 foreach ($products as $product) {
     if (!is_array($product)) {
         continue;
@@ -51,10 +52,11 @@ foreach ($products as $product) {
     $productDir = $sourcePath !== ''
         ? rtrim($sourcePath, '/')
         : rtrim($pluginsDir, '/') . '/' . $productName;
-    $readmePath = $productDir . '/README.md';
+    $publicPagePath = $productDir . '/docs/public-page.md';
     $changelogPath = $productDir . '/CHANGELOG.md';
-    if (!is_file($readmePath)) {
-        fwrite(STDERR, "README.md was not found: {$readmePath}\n");
+    if (!is_file($publicPagePath)) {
+        fwrite(STDERR, "docs/public-page.md was not found: {$publicPagePath}\n");
+        $hasErrors = true;
         continue;
     }
 
@@ -67,9 +69,9 @@ foreach ($products as $product) {
     $displayName = (string)($product['display_name'] ?? $productName);
     writeHtml(
         $targetDir . '/' . $topIncludeName,
-        mdToHtml(stripFirstH1((string)file_get_contents($readmePath))),
+        mdToHtml(stripFirstH1((string)file_get_contents($publicPagePath))),
         $displayName,
-        'README.md'
+        'docs/public-page.md'
     );
     writeHtml(
         $targetDir . '/' . $changelogIncludeName,
@@ -82,6 +84,11 @@ foreach ($products as $product) {
 
     $generated[] = $categoryCode . '/' . $topIncludeName;
     $generated[] = $categoryCode . '/' . $changelogIncludeName;
+}
+
+if ($hasErrors) {
+    fwrite(STDERR, "Product docs generation failed. Add docs/public-page.md to every configured product.\n");
+    exit(1);
 }
 
 if (!$generated) {

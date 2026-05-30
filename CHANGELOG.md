@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- 製品トップ用HTML断片の正本を `README.md` から `docs/public-page.md` に変更しました。
+- `docs/public-page.md` がない製品では、`README.md` へフォールバックせず明示的にエラーにするようにしました。
+
 <a id="v0-3-3"></a>
 ## 0.3.3 - 2026-05-30
 
