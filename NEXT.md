@@ -2,7 +2,7 @@
 
 DFリリース周辺の継続タスクメモです。
 
-作業開始時にこのファイルを読み、作業中に追加・移動しながら使います。実装済みでリリースに含める内容は、必要に応じて `CHANGELOG.md` へ移します。
+作業開始時にこのファイルを読み、作業中に追加・移動しながら使います。完了したタスクはこのファイルから削除し、リリースに含める変更履歴は `CHANGELOG.md` に残します。
 
 ## Now
 
@@ -51,14 +51,3 @@ DFリリース周辺の継続タスクメモです。
   - `DF_InputAssist`: DF Connect系の変更が残っている。
   - `DF_FormGuard`: DF Connect系の変更が残っている。
   - `DF_VRPlayer`: `scripts/sync-release-sftp.sh` の変更が残っている。
-
-## Done
-
-- `DFリリース` の製品ページHTML生成を、`README.md` ではなく `docs/public-page.md` 正本に変更した。
-- 4製品に `docs/public-page.md` を追加した。
-  - DF入力支援
-  - DFいいね
-  - DFフォームガード
-  - DFVRプレイヤー
-- 4製品分の `_top_include.html` / `changelog_include.html` を生成し、info.datafarm.jp のテーマ配下へSFTP同期した。
-- `docs/public-page.md` 欠落時に、READMEへフォールバックせず明示的にエラーにするようにした。
